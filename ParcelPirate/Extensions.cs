@@ -8,7 +8,7 @@ namespace ParcelPirate.Extensions {
         }
 
         public static string ToSlackEpoch(this System.DateTime thisDate) {
-            var epoch = (int)(thisDate.Subtract(new System.DateTime(1970, 1, 1))).TotalSeconds;
+            var epoch = (int)(thisDate.Subtract(new System.DateTime(1970, 1, 1))).TotalSeconds; // + 10
             return string.Format("{0}.00000", epoch);
         }
 
@@ -24,11 +24,11 @@ namespace ParcelPirate.Extensions {
             return sb.ToString();
         }
 
-        public static string Serialize(this System.Collections.Generic.List<Newtonsoft.Json.Linq.JToken> list, string listName) {
+        public static string Serialize(this System.Collections.Generic.List<Newtonsoft.Json.Linq.JToken> list) {
 
             var sb = new System.Text.StringBuilder();
 
-            sb.AppendLine("{"+listName+": [");
+            sb.AppendLine("[");
 
             for (int i = 0; i < list.Count; ++i ){
 
@@ -39,7 +39,7 @@ namespace ParcelPirate.Extensions {
                     sb.AppendLine(",");}
             }
 
-            sb.AppendLine("]}");
+            sb.Append("\n]");
 
             return sb.ToString();
         }

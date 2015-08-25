@@ -26,7 +26,9 @@ namespace ParcelPirate {
                 if (args.Length > 0) {
                     Console.WriteLine("sending message " + args[0]);
 
-                    var message = string.Format("<@{0}> {1}", config.myUserId, args[0]);
+                    //var message = string.Format("<@{0}> {1}", config.myUserId, args[0]);
+                    var message = args[0];
+
 
                     Console.WriteLine(sc.PostMessageToChannel(message).ToString(Newtonsoft.Json.Formatting.Indented));
                 }
@@ -40,17 +42,24 @@ namespace ParcelPirate {
 
                 Console.WriteLine("Messages Since..." + config.lastRunTime);
 
-                var new_messages = sc.GetChannelMessagesSince(config.channel);
+                var new_messages = sc.GetChannelMessagesSince(config.channel);//sort in chrono order.. and get last timestamp
 
                 Console.WriteLine(new_messages.PrintR());
 
                 if(new_messages.Count > 0) {
-                    System.IO.File.WriteAllText(THIS_FOLDER + "slack\\" + config.lastRunTime, new_messages.Serialize("messages"));}
+
+                    config.lastRunTime = new_messages[0].Value<string>("ts");//THIS IS IN REVERSE ORDER!!!!! 
+                    System.IO.File.WriteAllText(THIS_FOLDER + "slack\\" + config.lastRunTime, new_messages.Serialize());
+
+                }else{
+
+                    config.lastRunTime = DateTime.UtcNow.ToSlackEpoch();
+                }
 
 
                 Console.WriteLine("\n\n\n\n");
 
-                config.lastRunTime = DateTime.UtcNow.ToSlackEpoch();
+                 //
                 System.IO.File.WriteAllText(THIS_FOLDER + CONF_NAME, config.ToString());
                 
 
@@ -59,7 +68,7 @@ namespace ParcelPirate {
                 Console.WriteLine("It seems that the Slack API is not available. nooooooOo! slain sascii art");
             }
 
-            Console.WriteLine(config.lastRunTime + "done");
+            Console.WriteLine(config.lastRunTime + " done");
         }
 
 

@@ -2,14 +2,14 @@
 _snatches messages from all over the high seas!_
 
 ## What is it?
-- a bare minimum polling services
+- a bare minimum polling service
 
 ## Features
 - it will poll **slack**
  - future: email, lync, and other data sources (like web scrape chat)
 - designed to be run slow loop or cron job
 - minimal dependencies and minimal setup
-- consistent connections to 3rd party services avoided
+- persisted connections to 3rd party services avoided
 
 ## notes
 - [golang install](https://golang.org/doc/install)

@@ -1,5 +1,4 @@
 {
-	targetDatabase: 'todo',
 	token: "0000-0000000000-0000000000-0000000000-000000",
 	myUserId: "",
 	channel: "C08HB6327",

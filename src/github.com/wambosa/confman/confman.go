@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 )
 
-const version = 1
-
 func GetThisFolder() string{
 
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))

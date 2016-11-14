@@ -33,7 +33,7 @@ func main() {
 		"slack": SnatchSlackParcels,
 	}
 
-	pirateConf, err := confman.LoadJson(fmt.Sprint(confman.GetThisFolder(), "/ParcelPirate.conf"))
+	pirateConf, err := confman.LoadJson(fmt.Sprint(confman.GetThisFolder(), "/db.conf"))
 
 	if err != nil {fatal("ParcelPirate Conf Failed to Load", err)}
 

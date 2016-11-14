@@ -146,7 +146,7 @@ func SnatchSlackParcels()([]RawApiMessage, error){
 		slackConf.LastRunTime = fmt.Sprintf("%v.000000", time.Now().UTC().Unix())}
 
 	// todo: error check this guy...
-	confman.SaveJson(confman.GetThisFolder() + "/slack.conf", slack.ConvertSlackConfigToMap(slackConf))
+	confman.SaveJson(confman.GetThisFolder() + "/slack.conf", confman.StructToMap(slackConf))
 
 	return allMessages, nil
 }

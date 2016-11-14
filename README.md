@@ -13,11 +13,7 @@ _snatches messages from all over the high seas!_
 - persisted connections to 3rd party services avoided
 
 ## notes
-- [golang install](https://golang.org/doc/install)
- - ```wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz```
- - ```tar -C /usr/local -xzf go1.7.3.linux-amd64.tar.gz```
- - ```export PATH=$PATH:/usr/local/go/bin```
-- [godep install](https://github.com/tools/godep)
+- [godep](https://github.com/tools/godep)
  - ```go get github.com/tools/godep```
  - todo: figure this out later. using isolated VMs for development anyways
 - ```go test ./src/github.com/wambosa/*```

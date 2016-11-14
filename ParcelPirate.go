@@ -25,6 +25,7 @@ type RawApiMessage struct {
 
 type ProcessingMethod func()([]RawApiMessage, error)
 
+// todo: need to support args for the slack token. since the workspace is public
 func main() {
 	fmt.Println("Parcel Pirate")
 	//todo : ascii art

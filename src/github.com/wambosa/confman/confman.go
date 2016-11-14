@@ -3,7 +3,6 @@ package confman
 import (
 	"os"
 	"reflect"
-	"strings"
 	"io/ioutil"
 	"encoding/json"
 	"path/filepath"
@@ -18,7 +17,7 @@ func GetThisFolder() string{
 
 func StructToMap(aStruct interface{}) (map[string]interface{}) {
 
-	var newMap map[string]interface{}
+	newMap := make(map[string]interface{})
 
 	thisStruct := reflect.ValueOf(aStruct)
 
@@ -30,8 +29,9 @@ func StructToMap(aStruct interface{}) (map[string]interface{}) {
 	for i := 0; i < thisStruct.NumField(); i++ {
 		field := thisStruct.Field(i)
 		//fmt.Printf("%d: %s %s = %v\n", i, structType.Field(i).Name, field.Type(), field.Interface())
-		newMap[strings.ToLower(structType.Field(i).Name)] = field.Interface()//try not string lower.. could be annoying
+		newMap[structType.Field(i).Name] = field.Interface()
 	}
+	
 	return newMap
 }
 
@@ -48,10 +48,9 @@ func LoadJson(path string) (map[string]interface{}, error){
 
 	if err != nil {return nil, err}
 
-	var newMap map[string]interface{}
+	newMap := make(map[string]interface{})
 
 	json.Unmarshal(buf, &newMap)
-
 	return newMap, err
 }
 

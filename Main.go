@@ -6,10 +6,10 @@ import (
 	"time"
 	"strconv"
 	"database/sql"
-	"github.com/wambosa/polyjug"
 	"github.com/wambosa/slack"
-	"github.com/wambosa/jugger"
+	"github.com/wambosa/polyjug"
 	"github.com/wambosa/confman"
+	"github.com/wambosa/schema/machinehead"
 )
 
 var (

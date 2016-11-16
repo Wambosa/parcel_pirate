@@ -6,7 +6,7 @@ import (
 	"time"
 	"strconv"
 	"database/sql"
-	"github.com/wambosa/easydb"
+	"github.com/wambosa/polyjug"
 	"github.com/wambosa/slack"
 	"github.com/wambosa/jugger"
 	"github.com/wambosa/confman"
@@ -14,6 +14,7 @@ import (
 
 var (
 	ConnectionString string
+	Jug *polyjug.Jug
 )
 
 type RawApiMessage struct {
@@ -25,10 +26,9 @@ type RawApiMessage struct {
 
 type ProcessingMethod func()([]RawApiMessage, error)
 
-// todo: need to support args for the slack token. since the workspace is public
+
 func main() {
-	fmt.Println("Parcel Pirate")
-	//todo : ascii art
+
 	ParcelSnatcher := map[string]ProcessingMethod {
 		"slack": SnatchSlackParcels,
 	}
@@ -38,9 +38,9 @@ func main() {
 	if err != nil {fatal("ParcelPirate Conf Failed to Load", err)}
 
 	// todo: include support for other database types
-	ConnectionString = pirateConf["targetDatabase"].(string)
+	Jug = polyjug.New("sqlite3", pirateConf["targetDatabase"].(string))
 
-	supportedParcelTypes := map[string]int{ // := pirateConf["parcelTypes"].([]string)
+	supportedParcelTypes := map[string]int{ // := pirateConf["parcelTypes"].(map[string]int)
 		"slack": 1,
 		//"lync":2,
 		//"smtp":3,
@@ -193,13 +193,8 @@ func FindUserIdBySlackUser(slackUser string, parcelType int)(int, error){
 	WHERE Key = 'SlackUser'
 	AND Value LIKE '%s'
 	`
-	db, err := sql.Open("sqlite3", ConnectionString)
 
-	if(err != nil){return 0, err}
-
-	defer db.Close()
-
-	userIds, err := easydb.Query(db, fmt.Sprintf(bestTryQuery, slackUser))
+	userIds, err := Jug.Query(fmt.Sprintf(bestTryQuery, slackUser))
 
 	if(err != nil){return 0, err}
 
@@ -220,7 +215,7 @@ func FindUserIdBySlackUser(slackUser string, parcelType int)(int, error){
 		WHERE Key = 'Email'
 		AND Value = '%s'
 		`
-		userIds, err = easydb.Query(db, fmt.Sprintf(findByEmailQuery, profile["email"].(string)))
+		userIds, err = Jug.Query(fmt.Sprintf(findByEmailQuery, profile["email"].(string)))
 
 		if err != nil {return 0, err}
 
@@ -238,22 +233,19 @@ func FindUserIdBySlackUser(slackUser string, parcelType int)(int, error){
 			if val, ok := profile["first_name"]; ok {firstName = val.(string)}
 			if val, ok := profile["last_name"]; ok {lastName = val.(string)}
 
-			res, err := easydb.Exec(db,
-				`INSERT INTO User (NickName, FirstName, LastName) VALUES (?,?,?)`,
+			res, err := Jug.Exec(`INSERT INTO User (NickName, FirstName, LastName) VALUES (?,?,?)`,
 				nickname, firstName, lastName)
 
 			if err != nil {return 0, err}
 
 			lastId, _ := res.LastInsertId()
 			userId = int(lastId)
-			easydb.Exec(db,
-				`INSERT INTO UserPreference (UserId, Key, Value) VALUES (?,?,?)`,
+			Jug.Exec(`INSERT INTO UserPreference (UserId, Key, Value) VALUES (?,?,?)`,
 				fmt.Sprintf("%v",userId), "Email", profile["email"].(string))
 		}
 
 		//whether or not the user already existed, their slack data did not exist, so lets be sure to store it for next time.
-		easydb.Exec(db,
-			`INSERT INTO UserPreference (UserId, Key, Value) VALUES (?,?,?)`,
+		Jug.Exec(`INSERT INTO UserPreference (UserId, Key, Value) VALUES (?,?,?)`,
 			userId, "SlackUser", slackUser)
 
 	}else{
@@ -284,9 +276,7 @@ func SaveNewReceivedMessages(messages *[]jugger.ReceivedMessage)(error){
 
 	for _, message := range *messages {
 
-		res, err := easydb.Exec(db, messageQuery, message.ParcelTypeId, message.MessageText, message.UserId)
-
-		//todo: (improve performance and io by using a view to abstract the two tables into 1)
+		res, err := Jug.Exec(messageQuery, message.ParcelTypeId, message.MessageText, message.UserId)
 
 		if err != nil {return err}
 
@@ -294,7 +284,7 @@ func SaveNewReceivedMessages(messages *[]jugger.ReceivedMessage)(error){
 
 		for _, meta := range message.Metadata {
 
-			_, err := easydb.Exec(db, metaQuery, lastId, meta.Key, meta.Value)
+			_, err := Jug.Exec(metaQuery, lastId, meta.Key, meta.Value)
 
 			if err != nil {return err}
 		}
